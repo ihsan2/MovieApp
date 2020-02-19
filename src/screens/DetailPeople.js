@@ -109,7 +109,7 @@ class DetailPeople extends Component {
               </TouchableOpacity>
               <View style={styles.viewHome}>
                 <TouchableOpacity
-                  onPress={() => this.props.navigation.push('Navbar')}>
+                  onPress={() => this.props.navigation.navigate('Navbar')}>
                   <MaterialIcon name="home" color={'#C6CFCF'} size={32} />
                 </TouchableOpacity>
               </View>
