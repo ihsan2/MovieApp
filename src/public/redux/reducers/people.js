@@ -3,6 +3,7 @@ const initialState = {
   isLoading: false,
   isFulfilled: false,
   isRejected: false,
+  page: '',
 };
 
 const people = (state = initialState, action) => {
@@ -28,6 +29,7 @@ const people = (state = initialState, action) => {
         isFulfilled: true,
         isRejected: false,
         data: action.payload.data.results,
+        page: action.payload.data.page,
       };
 
     default:

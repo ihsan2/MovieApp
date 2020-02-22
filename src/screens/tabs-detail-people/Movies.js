@@ -24,7 +24,7 @@ export default class About extends Component {
                 renderItem={({item}) => (
                   <GridMoviesPeople item={item} navigation={navigation} />
                 )}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 style={styles.list}
                 key={3}
               />

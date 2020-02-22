@@ -69,7 +69,7 @@ class SearchMovies extends Component {
               renderItem={({item}) => (
                 <GridMovies item={item} navigation={this.props.navigation} />
               )}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.id.toString()}
               key={3}
             />
           )}

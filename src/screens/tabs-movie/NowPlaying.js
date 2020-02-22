@@ -17,25 +17,37 @@ class NowPlaying extends Component {
     super(props);
     this.state = {
       refreshing: false,
+      page: 1,
+      load: false,
+      movies: [],
     };
-    this.page = 1;
   }
 
   componentDidMount() {
+    // eslint-disable-next-line react/no-did-mount-set-state
+    this.setState({load: true});
     this.getData();
   }
 
   getData = async () => {
-    await this.props.get(getNowPlayingMoviesUrl(this.page));
+    await this.props.get(getNowPlayingMoviesUrl(this.state.page)).then(() => {
+      this.setState({
+        movies: [...this.state.movies, ...this.props.data.data],
+        load: false,
+      });
+    });
   };
 
   handleRefresh = () => {
-    this.getData();
+    this.setState({movies: [], page: 1, load: true}, () => {
+      this.getData();
+    });
   };
 
   handleLoadMore = () => {
-    this.page += 1;
-    this.getData();
+    this.setState({page: this.state.page + 1}, () => {
+      this.getData();
+    });
   };
 
   render() {
@@ -43,35 +55,51 @@ class NowPlaying extends Component {
     return (
       <>
         <SafeAreaView style={styles.container}>
-          {this.props.data.isLoading ? (
+          {this.state.load ? (
             <ActivityIndicator size={'large'} color={'#343336'} />
           ) : !viewChange ? (
             <FlatList
               numColumns={1}
-              data={this.props.data.data}
+              data={this.state.movies}
               renderItem={({item}) => (
                 <ListMovies item={item} navigation={navigation} />
               )}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.id.toString()}
               style={styles.list}
               refreshing={this.state.refreshing}
               onRefresh={this.handleRefresh}
               key={1}
+              onEndReached={this.handleLoadMore}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={() =>
+                this.props.data.isLoading ? (
+                  <ActivityIndicator style={styles.loadMore} />
+                ) : (
+                  <></>
+                )
+              }
             />
           ) : (
             <FlatList
               numColumns={3}
-              data={this.props.data.data}
+              data={this.state.movies}
               renderItem={({item}) => (
                 <GridMovies item={item} navigation={navigation} />
               )}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.id.toString()}
               style={styles.list}
               refreshing={this.state.refreshing}
               onRefresh={this.handleRefresh}
               key={3}
-              // onEndReached={this.handleLoadMore}
-              // onEndReachedThreshold={0.8}
+              onEndReached={this.handleLoadMore}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={() =>
+                this.props.data.isLoading ? (
+                  <ActivityIndicator style={styles.loadMore} />
+                ) : (
+                  <></>
+                )
+              }
             />
           )}
         </SafeAreaView>
@@ -88,6 +116,10 @@ const styles = StyleSheet.create({
   },
   list: {
     marginTop: h('1%'),
+  },
+  loadMore: {
+    marginBottom: h('2%'),
+    marginTop: h('2%'),
   },
 });
 

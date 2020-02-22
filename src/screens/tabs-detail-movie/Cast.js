@@ -14,7 +14,7 @@ export default class Cast extends Component {
             renderItem={({item}) => (
               <ListCast item={item} navigation={navigation} />
             )}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.id.toString()}
             style={styles.list}
           />
         </View>

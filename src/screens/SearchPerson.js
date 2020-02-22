@@ -68,7 +68,7 @@ class SearchPerson extends Component {
               renderItem={({item}) => (
                 <ListPeople item={item} navigation={this.props.navigation} />
               )}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.id.toString()}
             />
           )}
         </SafeAreaView>

@@ -25,25 +25,37 @@ class People extends Component {
     super(props);
     this.state = {
       refreshing: false,
+      people: [],
+      page: 1,
+      load: false,
     };
-    this.page = 1;
   }
 
   componentDidMount() {
+    // eslint-disable-next-line react/no-did-mount-set-state
+    this.setState({load: true});
     this.getData();
   }
 
   getData = async () => {
-    await this.props.get(getPopularPersonUrl(this.page));
+    await this.props.get(getPopularPersonUrl(this.state.page)).then(() => {
+      this.setState({
+        people: [...this.state.people, ...this.props.data.data],
+        load: false,
+      });
+    });
   };
 
   handleRefresh = () => {
-    this.getData();
+    this.setState({people: [], page: 1, load: true}, () => {
+      this.getData();
+    });
   };
 
   handleLoadMore = () => {
-    this.page += 1;
-    this.getData();
+    this.setState({page: this.state.page + 1}, () => {
+      this.getData();
+    });
   };
 
   render() {
@@ -72,20 +84,29 @@ class People extends Component {
             </Right>
           </Header>
 
-          {this.props.data.isLoading ? (
+          {this.state.load ? (
             <View style={styles.body}>
               <ActivityIndicator size={'large'} color={'#343336'} />
             </View>
           ) : (
             <FlatList
-              data={this.props.data.data}
+              data={this.state.people}
               renderItem={({item}) => (
                 <ListPeople item={item} navigation={this.props.navigation} />
               )}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.id.toString()}
               style={styles.list}
               refreshing={this.state.refreshing}
               onRefresh={this.handleRefresh}
+              onEndReached={this.handleLoadMore}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={() =>
+                this.props.data.isLoading ? (
+                  <ActivityIndicator style={styles.loadMore} />
+                ) : (
+                  <></>
+                )
+              }
             />
           )}
         </SafeAreaView>
@@ -132,6 +153,10 @@ const styles = StyleSheet.create({
   },
   list: {
     marginTop: h('0.2%'),
+  },
+  loadMore: {
+    marginBottom: h('2%'),
+    marginTop: h('2%'),
   },
 });
 
